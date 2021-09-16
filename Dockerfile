@@ -10,6 +10,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Update ubuntu software repository
 RUN apt-get update
 
+# Install apt-utils
+RUN apt-get install -y apt-utils
+
 # Install common tools
 RUN apt-get install -y software-properties-common
 

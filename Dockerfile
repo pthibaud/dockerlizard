@@ -21,7 +21,7 @@ RUN add-apt-repository universe && \
     apt-get update && \
     apt-get -y upgrade && \
     apt-get -y dist-upgrade && \
-    apt-get install -y vim git cmake gmsh
+    apt-get install -y sudo vim git cmake gmsh
     
 # Install clang compiler
 RUN apt-get install -y clang-12
@@ -41,6 +41,8 @@ RUN apt-get clean
 
 # Prepare users
 RUN useradd -ms /bin/bash ubuntu
+RUN usermod -aG sudo ubuntu
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Set permissions
 RUN chown -R ubuntu:ubuntu /home/ubuntu && chmod +rwx /home/ubuntu
@@ -60,3 +62,28 @@ RUN cd /home/ubuntu/sparselizard/build && CXX=clang++-12 cmake ..
 
 # Run the compilation process
 RUN cd /home/ubuntu/sparselizard/build && make -j $(getconf _NPROCESSORS_ONLN)
+
+# Install the library and headers
+RUN cd /home/ubuntu/sparselizard/build && sudo make install
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+ENV OMPI_CXX=clang++-12
+
+# Install the test directory
+RUN mkdir -p /home/ubuntu/test && \
+    cp /home/ubuntu/sparselizard/simulations/default/disk.* /home/ubuntu/test/ && \
+    cp /home/ubuntu/sparselizard/simulations/default/main.cpp /home/ubuntu/test/
+
+# Create a test Makefile
+RUN echo 'CXX=mpic++ \n\
+CXXFLAGS=-Ofast \n\
+INCLUDE=-I/usr/local/include/sparselizard -I/usr/include/petsc \n\
+LIBS=-L/usr/local/lib -lsparselizard \n\
+main.x: main.o \n\
+\t $(CXX) $(CXXFLAGS) -o main.x main.o $(LIBS) \n\
+clean:\n\
+\t @rm -f main.x main.o u.vtk \n\
+.cpp.o: \n\
+\t $(CXX) $(CXXFLAGS) $(INCLUDE) -c $<' > /home/ubuntu/test/Makefile
+
+# clean the local git repo
+RUN rm -fr /home/ubuntu/sparselizard

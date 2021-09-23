@@ -34,6 +34,8 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: true
         tags: pthibaud/dockerlizard:latest
+        cache-from: type=registry,ref=pthibaud/dockerlizard:latest
+        cache-to: type=inline
         
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}

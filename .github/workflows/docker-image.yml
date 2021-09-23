@@ -26,7 +26,7 @@ jobs:
       run: docker build . --file Dockerfile --tag pthibaud/dockerlizard:$(date +%s)
 
     - name: Docker push
-      run: docker push ${{secrets.DOCKER_USER}}/dockerlizard
+      run: docker push ${{secrets.DOCKER_USERNAME}}/dockerlizard
         
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}

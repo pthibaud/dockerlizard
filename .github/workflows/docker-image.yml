@@ -23,10 +23,10 @@ jobs:
         docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
 
     - name: Build the docker image
-      run: docker build . --file Dockerfile --tag pthibaud/dockerlizard:$(date +%s)
+      run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USERNAME}}/dockerlizard:latest
 
     - name: Docker push
-      run: docker push ${{secrets.DOCKER_USERNAME}}/dockerlizard
+      run: docker push ${{secrets.DOCKER_USERNAME}}/dockerlizard:latest
         
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}

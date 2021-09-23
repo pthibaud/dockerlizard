@@ -1,7 +1,7 @@
-FROM ubuntu:latest
+FROM ubuntu:rolling
 
 LABEL maintainer="pascal.thibaudeau@cea.fr"
-LABEL version="0.1"
+LABEL version="0.2"
 LABEL description="Sparselizard on docker. See https://github.com/pthibaud/dockerlizard"
 
 # Disable prompt during packages installation

@@ -23,7 +23,7 @@ jobs:
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
     - name: Build the docker image
-      run: docker build -t dockerlizard . --file Dockerfile --tag $DOCKER_USER/dockerlizard:$(date +%s)
+      run: docker build . --file Dockerfile --tag $DOCKER_USER/dockerlizard:$(date +%s)
 
     - name: Docker push
       run: docker push ${{secrets.DOCKER_USER}}/dockerlizard

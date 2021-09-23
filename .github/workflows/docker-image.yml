@@ -8,12 +8,13 @@ on:
 
 jobs:
 
-  build:
+  docker:
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1

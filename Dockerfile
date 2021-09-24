@@ -51,27 +51,31 @@ RUN chown -R ubuntu:ubuntu /home/ubuntu && chmod +rwx /home/ubuntu
 USER ubuntu
 
 # Prepare the code folder
-RUN mkdir -p /home/ubuntu/sparselizard
+WORKDIR /home/ubuntu
+RUN mkdir -p sparselizard
 
 # Clone git sparselizard repository
-RUN git clone https://github.com/araven/sparselizard.git /home/ubuntu/sparselizard
+RUN git clone https://github.com/araven/sparselizard.git
 
 # Prepare compilation environment
-RUN mkdir -p /home/ubuntu/sparselizard/build
-RUN cd /home/ubuntu/sparselizard/build && CXX=clang++-12 cmake ..
+RUN mkdir -p ./sparselizard/build
+WORKDIR ./sparselizard/build
+RUN sed -i 's/-no-pie//g' ../src/CMakeLists.txt
+RUN CXX=clang++-12 cmake ..
 
 # Run the compilation process
-RUN cd /home/ubuntu/sparselizard/build && make -j $(getconf _NPROCESSORS_ONLN)
+RUN make -j $(getconf _NPROCESSORS_ONLN)
 
-# Install the library and headers
-RUN cd /home/ubuntu/sparselizard/build && sudo make install
+# Install the library and headers; Put the env variables
+RUN sudo make install
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 ENV OMPI_CXX=clang++-12
 
 # Install the test directory
-RUN mkdir -p /home/ubuntu/test && \
-    cp /home/ubuntu/sparselizard/simulations/default/disk.* /home/ubuntu/test/ && \
-    cp /home/ubuntu/sparselizard/simulations/default/main.cpp /home/ubuntu/test/
+WORKDIR /home/ubuntu
+RUN mkdir -p test && \
+    cp ./sparselizard/simulations/default/disk.* ./test/ && \
+    cp ./sparselizard/simulations/default/main.cpp ./test/
 
 # Create a test Makefile
 RUN echo 'CXX=mpic++ \n\
@@ -83,7 +87,7 @@ main.x: main.o \n\
 clean:\n\
 \t @rm -f main.x main.o u.vtk \n\
 .cpp.o: \n\
-\t $(CXX) $(CXXFLAGS) $(INCLUDE) -c $<' > /home/ubuntu/test/Makefile
+\t $(CXX) $(CXXFLAGS) $(INCLUDE) -c $<' > ./test/Makefile
 
 # clean the local git repo
-RUN rm -fr /home/ubuntu/sparselizard
+RUN rm -fr ./sparselizard

@@ -27,8 +27,8 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        
-    - name: Github Container Registry
+
+    - name: Github Container Registry login
       uses: docker/login-action@v1
       with:
         registry: ghcr.io
